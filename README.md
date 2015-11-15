@@ -1,2 +1,2 @@
 # nstore
-NStore - Storage Abstraction SDK for .NET
+NStore - Storage Abstraction Framework for .NET
