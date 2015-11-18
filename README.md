@@ -4,7 +4,9 @@
 
 Imagine a simple framework where, with just a few lines of code, you can save files to Azure Blobs, Amazon S3, or even to the local disk without worrying about details like authentication, containers, or cloud client creation. That's what NStore does, and I created it to abstract away the complexities of cloud file store APIs and SDKs and the nuances of saving files across multiple disparate providers.
 
-NStore implements a simple API which allows you to perform simple CRUD (*create, read, update, delete*) operations to virtually any cloud provider. I'm currently working on implementations for a few providers, and I've included the core interfaces as an open-source SDK so that other developers can do the same.
+NStore implements a simple API which allows you to perform simple CRUD (*create, read, update, delete*) operations to virtually any cloud provider. Included is an implementation for local file system, and I'm working on implementations for a few providers like Azure, Amazon S3, and more. I've included the core interfaces as an open-source SDK so that other developers can do the same.
+
+NStore will eventually support `async` operations as well.
 
 ## How NStore Works
 
