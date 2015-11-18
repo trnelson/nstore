@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<nstore>
+  <!-- Plugin Configuration -->
+  <plugins>
+    <!-- Example -->
+    <!--
+    <plugin type="filesystem">
+      <createPathsAutomatically>true</createPathsAutomatically>
+      <removeEmptyPathsOnDelete>true</removeEmptyPathsOnDelete>
+      <removeEmptyPathsOnMove>true</removeEmptyPathsOnMove>
+    </plugin>
+    -->
+
+    <plugin type="filesystem">
+      <createPathsAutomatically>true</createPathsAutomatically>
+      <removeEmptyPathsOnDelete>true</removeEmptyPathsOnDelete>
+      <removeEmptyPathsOnMove>true</removeEmptyPathsOnMove>
+    </plugin>
+  </plugins>
+</nstore>
