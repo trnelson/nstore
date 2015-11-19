@@ -65,7 +65,7 @@ _repo.Save(file, container);
 
 ### Other CRUD Operations
 
-Reading, deleting, or moving a file is just as easy. Configuration options allow you to specify whether to remove empty directories after deleting or moving files, but just like with saving, NStore uses a common interface for actions across all storage providers:
+Reading, deleting, or moving a file is just as easy. Configuration options allow you to specify whether to remove empty directories after deleting or moving files, but just like with saving, NStore uses a common interface for actions across all storage providers.
 
 ## All Storage Providers Work The Same
 
