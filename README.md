@@ -1,6 +1,6 @@
 <img src="http://travis.io/images/nstore-logo.png" width="300">
 
-**NStore is a pluggable abstraction framework for .NET which simplifies and standardizes file operations in any cloud provider.**
+**NStore is a storage abstraction framework for .NET which simplifies and standardizes file operations in any cloud provider.**
 
 Imagine a simple framework where, with just a few lines of code, you can save files to Azure Blobs, Amazon S3, or even to the local disk without worrying about details like authentication, containers, or cloud client creation. That's what NStore does, and I created it to abstract away the complexities of cloud file store APIs and SDKs and the nuances of saving files across multiple disparate providers.
 
@@ -40,13 +40,13 @@ var container = new ContainerDefinition { Path = @"C:/temp/photos" };
 _repo.Save(file, container);
 ```
 
-And that's it. Actions like `Save` also return a status, of course.
+And that's it. Actions like `Save()` also return a status, of course.
 
 But what about other data stores, like Azure? 
 
-By just changing the generic type for the repository factory, we can basically save to Azure's block blob storage with the same code (and a few other small changes, like specifying the container name and passing a relative path):
-
 ### Using NStore to Save to Azure Block Blob Storage
+
+By just changing the generic type for the repository factory, we can basically save to Azure's block blob storage with the same code (and a few other small changes, like specifying the container name and passing a relative path):
 
 ```
 // Instantiate a repository (you'd do this in a constructor via Dependency Injection, probably)
@@ -65,7 +65,7 @@ _repo.Save(file, container);
 
 ### Other CRUD Operations
 
-Reading, Deleting, or moving a file is just as easy. Configuration options allow you to specify whether to remove empty directories after deleting or moving files, but just like with saving, NStore uses a common interface for actions across all storage providers:
+Reading, deleting, or moving a file is just as easy. Configuration options allow you to specify whether to remove empty directories after deleting or moving files, but just like with saving, NStore uses a common interface for actions across all storage providers:
 
 ## All Storage Providers Work The Same
 
