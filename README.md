@@ -1,4 +1,4 @@
-# NStore
+<img src="http://travis.io/images/nstore-logo.png" width="300">
 
 **NStore is a pluggable abstraction framework for .NET which simplifies and standardizes file operations in any cloud provider.**
 
