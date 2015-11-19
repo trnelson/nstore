@@ -16,7 +16,7 @@ Following is a short example of how NStore works in practice. As you can see, th
 
 Just call NStore's static `Init()` method and pass it a configuration string in XML format. A sample configuration file is provided. Using a `string` provides the opportunity for you to retrieve configuation data from a service or data store if you'd like and send it straight into NStore.
 
-```
+```C#
 // Initialize NStore
 NStore.Init(config);
 ```
@@ -25,7 +25,7 @@ That's it. NStore does the rest.
 
 ### Using NStore to Save to Local Disk
 
-```
+```C#
 // Instantiate a repository (you'd do this in a constructor via Dependency Injection, probably)
 var _repo = NStore.GetRepository<NStoreFileSystemRepository>();
 
@@ -48,7 +48,7 @@ But what about other data stores, like Azure?
 
 By just changing the generic type for the repository factory, we can basically save to Azure's block blob storage with the same code (and a few other small changes, like specifying the container name and passing a relative path):
 
-```
+```C#
 // Instantiate a repository (you'd do this in a constructor via Dependency Injection, probably)
 var _repo = NStore.GetRepository<NStoreAzureBlockBlobRepository>();
 
@@ -74,3 +74,5 @@ The benefit of having all storage providers work the same is that it's easy to s
 NStore is in early Alpha development and I'm very open to suggestions or contributions. Like what you see? Please use it, extend it, and let me know what you're doing with it!
 
 License: MIT
+Created By: Travis Nelson
+More Information: http://travis.io/nstore/
