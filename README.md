@@ -73,6 +73,6 @@ The benefit of having all storage providers work the same is that it's easy to s
 
 NStore is in early Alpha development and I'm very open to suggestions or contributions. Like what you see? Please use it, extend it, and let me know what you're doing with it!
 
-License: MIT
-Created By: Travis Nelson
+License: MIT<br>
+Created By: Travis Nelson<br>
 More Information: http://travis.io/nstore/
