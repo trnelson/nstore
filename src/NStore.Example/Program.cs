@@ -14,8 +14,8 @@ namespace NStore.Example
 
         private static void Main(string[] args)
         {
-            var e = new AdvancedExample();
-            e.Go();
+            var e = new SimpleExample();
+            e.ExecuteSaveExample();
 
             /**********************************
              * All Done

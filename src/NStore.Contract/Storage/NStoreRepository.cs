@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using NStore.Contract.Container;
 using NStore.Contract.File;
 
@@ -13,8 +14,10 @@ namespace NStore.Contract.Storage
         /// </summary>
         /// <param name="fileDefinition"></param>
         /// <param name="containerDefinition"></param>
+        /// <param name="data"></param>
         /// <returns></returns>
-        public abstract FileDefinition Read(FileDefinition fileDefinition, ContainerDefinition containerDefinition);
+        public abstract FileActionStatus TryRead(FileDefinition fileDefinition, ContainerDefinition containerDefinition,
+            out byte[] data);
 
         /// <summary>
         ///     Save a file object into the NStore repository. If the target container doesn't exist, create it with the provided
@@ -26,6 +29,21 @@ namespace NStore.Contract.Storage
         /// <param name="containerCreateOptions"></param>
         /// <returns></returns>
         public abstract FileActionStatus Save(FileDefinition fileDefinition, ContainerDefinition containerDefinition,
+            FileCreateOptions fileCreateOptions,
+            ContainerCreateOptions containerCreateOptions);
+
+
+        /// <summary>
+        ///     Save a file object into the NStore repository asynchronously. If the target container doesn't exist, create it with
+        ///     the provided options.
+        /// </summary>
+        /// <param name="fileDefinition"></param>
+        /// <param name="containerDefinition"></param>
+        /// <param name="fileCreateOptions"></param>
+        /// <param name="containerCreateOptions"></param>
+        /// <returns></returns>
+        public abstract Task<FileActionStatus> SaveAsync(FileDefinition fileDefinition,
+            ContainerDefinition containerDefinition,
             FileCreateOptions fileCreateOptions,
             ContainerCreateOptions containerCreateOptions);
 
@@ -43,32 +61,47 @@ namespace NStore.Contract.Storage
         }
 
         /// <summary>
-        ///     Save a file object into the NStore repository with default options. If the target container doesn't exist, create it with default options.
+        ///     Save a file object into the NStore repository asynchronously. If the target container doesn't exist, create it with
+        ///     default options.
+        /// </summary>
+        /// <param name="fileDefinition"></param>
+        /// <param name="containerDefinition"></param>
+        /// <returns></returns>
+        public Task<FileActionStatus> SaveAsync(FileDefinition fileDefinition, ContainerDefinition containerDefinition)
+        {
+            return SaveAsync(fileDefinition, containerDefinition, Defaults<FileCreateOptions>.GetDefault(),
+                Defaults<ContainerCreateOptions>.GetDefault());
+        }
+
+        /// <summary>
+        ///     Save a file object into the NStore repository with default options. If the target container doesn't exist, create
+        ///     it with default options.
         /// </summary>
         /// <param name="fileDefinition"></param>
         /// <param name="containerDefinition"></param>
         /// <param name="fileCreateOptions"></param>
         /// <returns></returns>
-        public FileActionStatus Save(FileDefinition fileDefinition, ContainerDefinition containerDefinition, FileCreateOptions fileCreateOptions)
+        public FileActionStatus Save(FileDefinition fileDefinition, ContainerDefinition containerDefinition,
+            FileCreateOptions fileCreateOptions)
         {
             return Save(fileDefinition, containerDefinition, fileCreateOptions,
                 Defaults<ContainerCreateOptions>.GetDefault());
         }
 
-        /*
         /// <summary>
-        /// Save a file object into the NStore repository asynchronously. If the target container doesn't exist, create it with the provided
-        ///     options.
+        ///     Save a file object into the NStore repository asynchronously with default options. If the target container doesn't
+        ///     exist, create it with default options.
         /// </summary>
         /// <param name="fileDefinition"></param>
         /// <param name="containerDefinition"></param>
         /// <param name="fileCreateOptions"></param>
-        /// <param name="containerCreateOptions"></param>
         /// <returns></returns>
-        internal abstract Task<FileActionStatus> SaveAsync(FileDefinition fileDefinition, ContainerDefinition containerDefinition,
-            FileCreateOptions fileCreateOptions,
-            ContainerCreateOptions containerCreateOptions);
-         * */
+        public Task<FileActionStatus> SaveAsync(FileDefinition fileDefinition, ContainerDefinition containerDefinition,
+            FileCreateOptions fileCreateOptions)
+        {
+            return SaveAsync(fileDefinition, containerDefinition, fileCreateOptions,
+                Defaults<ContainerCreateOptions>.GetDefault());
+        }
 
         /// <summary>
         ///     Delete a file object from the NStore repository.

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using NStore.Contract;
 using NStore.Contract.Container;
 using NStore.Contract.File;
@@ -10,6 +11,7 @@ namespace NStore.Repository.FileSystem
 {
     public class NStoreFileSystemRepository : NStoreRepository
     {
+        private bool _createPathsAutomatically;
         private bool _removeEmptyPathsOnDelete;
         private bool _removeEmptyPathsOnMove;
 
@@ -18,9 +20,24 @@ namespace NStore.Repository.FileSystem
             get { return "filesystem"; }
         }
 
-        public override FileDefinition Read(FileDefinition fileDefinition, ContainerDefinition containerDefinition)
+        public override FileActionStatus TryRead(FileDefinition fileDefinition, ContainerDefinition containerDefinition,
+            out byte[] data)
         {
-            throw new NotImplementedException();
+            var status = new FileActionStatus();
+            var path = GetFullFilePath(fileDefinition, containerDefinition);
+            try
+            {
+                data = File.ReadAllBytes(path);
+                status.Status = Status.Success;
+                status.Message = Constants.Messages.Success;
+            }
+            catch (Exception)
+            {
+                data = null;
+                status.Status = Status.NoAction;
+                status.Message = Constants.Messages.NoAction;
+            }
+            return status;
         }
 
         public override FileActionStatus Save(FileDefinition fileDefinition, ContainerDefinition containerDefinition,
@@ -29,9 +46,17 @@ namespace NStore.Repository.FileSystem
         {
             var status = new FileActionStatus();
 
+            // If we aren't allowing auto creation of directories, fail
+            if (!Directory.Exists(containerDefinition.Path) && !_createPathsAutomatically)
+            {
+                status.Status = Status.NoAction;
+                status.Message = Constants.Messages.NoAction +
+                                 " Path does not exist, and config to create paths automatically is false.";
+                return status;
+            }
+
             // Create directory if it doesn't exist
-            // TODO: Catch exceptions here
-            if (!Directory.Exists(containerDefinition.Path)) Directory.CreateDirectory(containerDefinition.Path);
+            Directory.CreateDirectory(containerDefinition.Path);
 
             var path = GetFullFilePath(fileDefinition, containerDefinition);
 
@@ -39,23 +64,52 @@ namespace NStore.Repository.FileSystem
             if (!fileCreateOptions.OverwriteExisting && File.Exists(path))
             {
                 status.Status = Status.NoAction;
-                status.Message = "File already exists; must explicitly set option to overwrite.";
+                status.Message = Constants.Messages.NoAction +
+                                 " File already exists; must explicitly set option to overwrite.";
                 return status;
             }
 
-            // Try to write file
-            try
-            {
-                File.WriteAllBytes(path, fileDefinition.Data);
-            }
-            catch (Exception)
-            {
-                status.Status = Status.NoAction;
-                status.Message = Constants.Messages.NoAction;
-            }
+            SaveFile(path, fileDefinition.Data).Wait();
 
             status.Status = Status.Success;
             status.Message = Constants.Messages.Success;
+            return status;
+        }
+
+        public override async Task<FileActionStatus> SaveAsync(FileDefinition fileDefinition,
+            ContainerDefinition containerDefinition,
+            FileCreateOptions fileCreateOptions, ContainerCreateOptions containerCreateOptions)
+        {
+            // TODO: Remove some of this duplicated code
+
+            var status = new FileActionStatus();
+
+            // If we aren't allowing auto creation of directories, fail
+            if (!Directory.Exists(containerDefinition.Path) && !_createPathsAutomatically)
+            {
+                status.Status = Status.NoAction;
+                status.Message = Constants.Messages.NoAction +
+                                 " Path does not exist, and config to create paths automatically is false.";
+                return status;
+            }
+
+            // Create directory if it doesn't exist
+            Directory.CreateDirectory(containerDefinition.Path);
+
+            var path = GetFullFilePath(fileDefinition, containerDefinition);
+
+            // Overwrite based on provided option
+            if (!fileCreateOptions.OverwriteExisting && File.Exists(path))
+            {
+                status.Status = Status.NoAction;
+                status.Message = Constants.Messages.NoAction +
+                                 " File already exists; must explicitly set option to overwrite.";
+                return status;
+            }
+
+            var result = await SaveFile(path, fileDefinition.Data);
+            status.Status = result.Status;
+            status.Message = result.Message;
             return status;
         }
 
@@ -108,9 +162,15 @@ namespace NStore.Repository.FileSystem
 
             try
             {
-                // TODO: Catch exceptions here
-                if (!Directory.Exists(newContainerDefinition.Path))
-                    Directory.CreateDirectory(newContainerDefinition.Path);
+                // If we aren't allowing auto creation of directories, fail
+                if (!Directory.Exists(newContainerDefinition.Path) && !_createPathsAutomatically)
+                {
+                    status.Status = Status.NoAction;
+                    status.Message = Constants.Messages.NoAction +
+                                     " Destination path does not exist, and config to create paths automatically is false.";
+                    return status;
+                }
+                Directory.CreateDirectory(newContainerDefinition.Path);
                 File.Move(oldPath, newPath);
                 if (_removeEmptyPathsOnMove) RemoveEmptyDirectories(containerDefinition.Path);
             }
@@ -133,8 +193,32 @@ namespace NStore.Repository.FileSystem
 
         public override void Init()
         {
+            _createPathsAutomatically = Settings.Setting<bool>("createPathsAutomatically");
             _removeEmptyPathsOnDelete = Settings.Setting<bool>("removeEmptyPathsOnDelete");
             _removeEmptyPathsOnMove = Settings.Setting<bool>("removeEmptyPathsOnMove");
+        }
+
+        # region Private Stuff
+
+        private async Task<FileActionStatus> SaveFile(string path, byte[] data)
+        {
+            var status = new FileActionStatus();
+            try
+            {
+                using (var sourceStream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None))
+                {
+                    await sourceStream.WriteAsync(data, 0, data.Length);
+                }
+                ;
+            }
+            catch (Exception)
+            {
+                status.Status = Status.NoAction;
+                status.Message = Constants.Messages.NoAction;
+            }
+            status.Status = Status.Success;
+            status.Message = Constants.Messages.Success;
+            return status;
         }
 
         private string GetFullFilePath(FileDefinition fileDefinition, ContainerDefinition containerDefinition)
@@ -151,5 +235,7 @@ namespace NStore.Repository.FileSystem
                 di = di.Parent;
             }
         }
+
+        # endregion
     }
 }
